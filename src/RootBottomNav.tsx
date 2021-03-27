@@ -1,28 +1,29 @@
-import {
-  BottomTabNavigationProp,
-  createBottomTabNavigator,
-} from "@react-navigation/bottom-tabs";
+import React, { ReactElement } from "react";
+import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import React, { ReactElement } from "react";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
+// In App.js in a new project
 import CashOut from "./screens/CashOut";
 import Tables from "./screens/Tables";
 import User from "./screens/User";
 import Expenses from "./screens/Expenses";
+import { createStackNavigator } from "@react-navigation/stack";
 
-export type BottomTabParamList = {
-  default: undefined;
-};
+const Stack = createStackNavigator();
 
-export type BottomTabNavigationProps<
-  T extends keyof BottomTabParamList = "default"
-> = BottomTabNavigationProp<BottomTabParamList, T>;
+function HomeScreen() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Tables" component={Tables} />
+    </Stack.Navigator>
+  );
+}
 
 // const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Tab = createMaterialBottomTabNavigator();
@@ -31,13 +32,13 @@ function MaterialBottomTabNavigator(): ReactElement {
   return (
     <NavigationContainer>
       <Tab.Navigator
-       activeColor="#fff"
-       inactiveColor="#C6C6C6"
-       barStyle={{ backgroundColor: 'tomato' }}
+        activeColor="#fff"
+        inactiveColor="#C6C6C6"
+        barStyle={{ backgroundColor: "tomato" }}
       >
         <Tab.Screen
           name="Tables"
-          component={Tables}
+          component={HomeScreen}
           options={{
             tabBarIcon: ({ color }) => (
               <MaterialIcons name="table-chart" color={color} size={24} />
@@ -67,7 +68,7 @@ function MaterialBottomTabNavigator(): ReactElement {
           }}
         />
         <Tab.Screen
-          name="User" 
+          name="User"
           component={User}
           options={{
             tabBarIcon: ({ color }) => (

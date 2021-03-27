@@ -1,7 +1,8 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { connect } from "react-redux";
+import { showMessage } from "react-native-flash-message";
 
 window.navigator.userAgent = "react-native";
 import io from "socket.io-client/dist/socket.io";
@@ -9,15 +10,12 @@ import io from "socket.io-client/dist/socket.io";
 import MaterialBottomTabNavigator from "./src/RootBottomNav";
 import RootStackScreen from "./src/RootLoginNav";
 
-// const socket = io(BASE_URL, { jsonp: false });
-// const socket = io('http://192.168.43.91:3200', { jsonp: false });
-
 type Props = {
   dispatchEvent: Function;
 };
 
 const AppFrame = (props: Props) => {
-  const [isLogedIn, setIsLogedIn] = React.useState(false);
+  const [isLogedIn, setIsLogedIn] = React.useState(true);
   const [Load, setLoad] = React.useState(true);
   const [socket, setSocket] = React.useState();
 
@@ -31,8 +29,7 @@ const AppFrame = (props: Props) => {
         // console.log(io(`https://switch-smart.herokuapp.com/`, { jsonp: false }));
 
         socketIo.on("connect", () => {
-          console.log("connect");
-
+          // console.log("connect");
           props.dispatchEvent({
             type: "SocketConnected",
             payload: socketIo,
@@ -40,18 +37,33 @@ const AppFrame = (props: Props) => {
         });
 
         socketIo.on("disconnect", () => {
-          console.log("dis-connect");
-
+          // socketIo.emit("disconnect", {});
+          // console.log("dis-connect");
           props.dispatchEvent({
             type: "SocketDisconnceted",
             payload: {},
           });
         });
 
-        socketIo.on("USER_DATA", (data) => {
-          console.log(data);
+        socketIo.on("USER_DATA", (data: { isLoggedIn: any; config: { userName: any; }; }) => {
+          // console.log(data);
           if (data.isLoggedIn) {
-            setIsLogedIn(true);
+            props.dispatchEvent({
+              type: "SETUSER",
+              userInfo: data.config,
+            });
+
+            socketIo.emit("UserConnected", { dep_name: data.config.userName });
+
+            setTimeout(() => {
+              setIsLogedIn(true);
+            }, 700);
+          } else {
+            showMessage({
+              message: "There was some errors with your submission",
+              description: "We're sorry your account is not found",
+              type: "danger",
+            });
           }
           // props.dispatchEvent({
           //   type: "SocketDisconnceted",
@@ -72,14 +84,23 @@ const AppFrame = (props: Props) => {
   React.useEffect(() => {
     if (Load) {
       getData();
-
       setLoad(false);
+    }
+
+    if (props.Actions.isWorking) {
+      if (props.Actions.loadType === "refresh_conn") {
+        getData();
+        props.dispatchEvent({
+          type: "RESET_ACTION",
+          loadType: "",
+        });
+      }
     }
   }, [props]);
 
-  return <MaterialBottomTabNavigator />;
-  // if (isLogedIn) return <MaterialBottomTabNavigator />;
-  // else return <RootStackScreen />;
+  // return <MaterialBottomTabNavigator />;
+  if (isLogedIn) return <MaterialBottomTabNavigator />;
+  else return <RootStackScreen />;
 };
 
 const styles = StyleSheet.create({
@@ -91,9 +112,10 @@ const styles = StyleSheet.create({
   },
 });
 
-function mapStateToProps(state: { SocketConfig: any }) {
+function mapStateToProps(state: { SocketConfig: any; Actions: any }) {
   return {
     SocketConfig: state.SocketConfig,
+    Actions: state.Actions,
   };
 }
 

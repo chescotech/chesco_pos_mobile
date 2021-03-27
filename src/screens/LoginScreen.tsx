@@ -1,9 +1,8 @@
 import React from "react";
-import { Dimensions } from "react-native";
 import {
   StyleSheet,
   ImageBackground,
-  Text,
+  Text, 
   View,
   ScrollView,
 } from "react-native";
@@ -11,10 +10,11 @@ import { connect } from "react-redux";
 import { StatusBar } from "react-native";
 import { OutlinedTextField } from "@freakycoder/react-native-material-textfield";
 import { Button } from "react-native-material-ui";
-import { moderateScale,verticalScale } from "react-native-size-matters";
+import { moderateScale, verticalScale } from "react-native-size-matters";
 import { Toolbar } from "react-native-material-ui";
 import { IconToggle } from "react-native-material-ui";
 import { Asset } from "expo-asset";
+import LottieView from "lottie-react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -38,7 +38,6 @@ const LoginScreen = (props: Props) => {
 
   const onSubmit = () => {
     let { current: field } = fieldRef;
-    // console.log(field);
     Login(field.value());
   };
 
@@ -76,7 +75,6 @@ const LoginScreen = (props: Props) => {
     setTimeout(() => {
       // SocketConfig.socket.on("USER_DATA", data=>{
       //   console.log(data);
-        
       // })
     }, 2000);
   }, []);
@@ -98,12 +96,25 @@ const LoginScreen = (props: Props) => {
       <Toolbar
         centerElement="Chesco Pos"
         rightElement={
-          <IconToggle
-            // style={{ paddingTop: 10 }}
-            onPress={() => navigation.navigate("Server_setup")}
-            name="settings"
-            color="#fff"
-          />
+          <View style={{ flexDirection: "row" }}>
+            <IconToggle
+              // style={{ paddingTop: 10 }}
+              onPress={() =>
+                props.dispatchEvent({
+                  type: "REFRESH_NET",
+                  loadType: "refresh_conn",
+                })
+              }
+              name="refresh"
+              color="#fff"
+            />
+            <IconToggle
+              // style={{ paddingTop: 10 }}
+              onPress={() => navigation.navigate("Server_setup")}
+              name="settings"
+              color="#fff"
+            />
+          </View>
         }
         style={{ container: { backgroundColor: "#7A8DA4" } }}
       />
@@ -124,73 +135,110 @@ const LoginScreen = (props: Props) => {
               Chesco Pos Mobile{" "}
             </Text>
           </View>
-          <View
-            style={{
-              width: "100%",
-              height: verticalScale(250),
-              marginTop: moderateScale(10),
-              backgroundColor: "#fff",
-              borderRadius: 20,
-            }}
-          >
-            <ScrollView
-              style={{ height: "100%" }}
-              contentContainerStyle={{
+
+          {SocketConfig.isCon ? (
+            <View
+              style={{
                 width: "100%",
-                height: 300,
-                paddingVertical: 20,
-                // marginTop: moderateScale(30),
+                height: verticalScale(250),
+                marginTop: moderateScale(10),
+                backgroundColor: "#fff",
+                borderRadius: 20,
               }}
             >
-              <Text
-                style={{
-                  textAlign: "center",
-                  fontSize: 20,
-                  color: "#3E3D32",
+              <ScrollView
+                style={{ height: "100%" }}
+                contentContainerStyle={{
+                  width: "100%",
+                  height: verticalScale(300),
+                  paddingVertical: 20,
+                  // marginTop: moderateScale(30),
                 }}
               >
-                Login to continue
-              </Text>
-              <View
-                style={{
-                  padding: moderateScale(10),
-                  marginTop: moderateScale(10),
-                }}
-              >
-                <OutlinedTextField
-                  label="Enter your pin"
-                  keyboardType="phone-pad"
-                  formatText={formatText}
-                  onChangeText={OnTextChange}
-                  onSubmitEditing={onSubmit}
-                  ref={fieldRef}
-                />
-              </View>
-              <View
-                style={{
-                  padding: moderateScale(10),
-                  marginTop: moderateScale(5),
-                }}
-              >
-                <Button
-                  disabled={isSet ? false : true}
-                  raised
-                  onPress={() => {
-                    Login(text);
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: 20,
+                    color: "#3E3D32",
                   }}
-                  primary
-                  text="Login"
+                >
+                  Login to continue
+                </Text>
+                <View
+                  style={{
+                    padding: moderateScale(10),
+                    marginTop: moderateScale(10),
+                  }}
+                >
+                  <OutlinedTextField
+                    label="Enter your pin"
+                    keyboardType="phone-pad"
+                    formatText={formatText}
+                    onChangeText={OnTextChange}
+                    onSubmitEditing={onSubmit}
+                    ref={fieldRef}
+                  />
+                </View>
+                <View
+                  style={{
+                    padding: moderateScale(10),
+                    marginTop: moderateScale(5),
+                  }}
+                >
+                  <Button
+                    disabled={isSet ? false : true}
+                    raised
+                    onPress={() => {
+                      Login(text);
+                    }}
+                    primary
+                    text="Login"
+                  />
+                  {isSet ? null : (
+                    <View style={{ marginTop: moderateScale(10) }}>
+                      <Text style={{ color: "red", textAlign: "center" }}>
+                        Server IP address is not set, Please set the IP
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </ScrollView>
+            </View>
+          ) : (
+            <View style={styles.cardErrorCon}>
+              <View style={{ height: "100%", width: "100%" }}>
+                <LottieView
+                  source={require("../../assets/lottie/7989-server-backup.json")}
+                  autoPlay
+                  loop
                 />
-                {isSet ? null : (
-                  <View style={{ marginTop: moderateScale(10) }}>
-                    <Text style={{ color: "red", textAlign: "center" }}>
-                      Server IP address is not set, Please set the IP
-                    </Text>
-                  </View>
-                )}
               </View>
-            </ScrollView>
-          </View>
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "tomato",
+                    textAlign: "center",
+                  }}
+                >
+                  Server failed to connect!
+                </Text>
+                <Text
+                  style={{
+                    color: "#3E3D32",
+                    textAlign: "center",
+                  }}
+                >
+                  We'll automatically connect again once we're connected
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
         <View style={{ width: "100%", margin: "auto" }}>
           <Text style={{ color: "#F7F9FA", textAlign: "center" }}>
@@ -232,13 +280,18 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   card: {
-    marginTop: moderateScale(10),
+    height: verticalScale(400),
+    marginTop: moderateScale(1),
     padding: moderateScale(20),
     textAlign: "center",
   },
+  cardErrorCon: {
+    height: verticalScale(200),
+    padding: moderateScale(20),
+  },
   image: {
     flex: 1,
-    paddingTop: 0,
+    paddingTop: -20,
     resizeMode: "cover",
     justifyContent: "center",
   },

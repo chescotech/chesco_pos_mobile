@@ -39,7 +39,7 @@ const Tables = (props: Props) => {
   };
 
   React.useEffect(() => {
-    SocketConfig.socket.emit("GETSAVEDTABLES", User);
+    SocketConfig.socket.emit("GETSAVEDTABLES", User); 
 
     SocketConfig.socket.on("TABLE_UPDATES", (tablesResults: any) => {
       SocketConfig.socket.emit("GETSAVEDTABLES", User);
@@ -70,7 +70,13 @@ const Tables = (props: Props) => {
           autoFocus: true,
           placeholder: "Search",
         }}
-        rightElement={<IconToggle name="add" color="#fff" />}
+        rightElement={
+          <IconToggle
+            onPress={() => navigation.navigate("NewTable")}
+            name="add"
+            color="#fff"
+          />
+        }
         style={{ container: { backgroundColor: "tomato" } }}
       />
       <ScrollView

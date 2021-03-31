@@ -15,7 +15,7 @@ type Props = {
 };
 
 const AppFrame = (props: Props) => {
-  const [isLogedIn, setIsLogedIn] = React.useState(true);
+  const [isLogedIn, setIsLogedIn] = React.useState(false);
   const [Load, setLoad] = React.useState(true);
   const [socket, setSocket] = React.useState();
 

@@ -14,13 +14,15 @@ import Tables from "./screens/Tables";
 import User from "./screens/User";
 import Expenses from "./screens/Expenses";
 import { createStackNavigator } from "@react-navigation/stack";
+import NewTables from "./screens/NewTables";
 
 const Stack = createStackNavigator();
 
 function HomeScreen() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator headerMode="none">
       <Stack.Screen name="Tables" component={Tables} />
+      <Stack.Screen name="NewTable" component={NewTables} />
     </Stack.Navigator>
   );
 }
